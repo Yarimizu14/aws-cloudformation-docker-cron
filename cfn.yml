@@ -1,0 +1,88 @@
+Resources:
+  DPP4ZAOO:
+    Type: 'AWS::DataPipeline::Pipeline'
+    Properties:
+      Name: ecs-run-task-sample
+      Description: "Pipeline to run task on ECS"
+      Activate: true
+    PipelineObjects: 
+      - 
+        Id: "CliActivity"
+        Name: "CliActivity"
+        Fields: 
+          - 
+            Key: "parent"
+            RefValue: "Default"
+          - 
+            Key: "type"
+            StringValue: "ShellCommandActivity"
+          - 
+            Key: "runsOn"
+            StringValue: "EC2Instance"
+          - 
+            Key: "runsOn"
+            RefValue: "EC2Instance"
+          - 
+            Key: "command"
+            StringValue: "(sudo yum -y update aws-cli) && (#{myAWSCLICmd})"
+      - 
+        Id: "Ec2Instance"
+        Name: "Ec2Instance"
+        Fields: 
+          - 
+            Key: "parent"
+            RefValue: "Default"
+          - 
+            Key: "instanceType"
+            StringValue: "t1.micro"
+          - 
+            Key: "type"
+            StringValue: "EC2Resource"
+          - 
+            Key: "terminateAfter"
+            StringValue: "50 Minutes"
+          - 
+            Key: "command"
+            StringValue: "(sudo yum -y update aws-cli) && (#{myAWSCLICmd})"
+      - 
+        Id: "DefaultSchedule"
+        Name: "Every 15 minutes"
+        Fields: 
+          - 
+            Key: "parent"
+            RefValue: "Default"
+          - 
+            Key: "period"
+            StringValue: "15 Minutes"
+          - 
+            Key: "type"
+            StringValue: "Schedule"
+          - 
+            Key: "startAt"
+            StringValue: "FIRST_ACTIVATION_DATE_TIME"
+      - 
+        Id: "DefaultSchedule"
+        Name: "Every 15 minutes"
+        Fields: 
+          - 
+            Key: "failureAndRerunMode"
+            StringValue: "CASCADE"
+          - 
+            Key: "role"
+            StringValue: "DataPipelineDefaultRole"
+          - 
+            Key: "schedule"
+            RefValue: "DefaultSchedule"
+          - 
+            Key: "resourceRole"
+            StringValue: "DataPipelineDefaultResourceRole"
+          - 
+            Key: "scheduleType"
+            StringValue: "cron"
+    ParameterObjects:
+      - 
+        Id: "myDDBReadThroughputRatio"
+        Attributes: 
+          - 
+            Key: "myAWSCLICmd"
+            StringValue: "AWS_DEFAULT_REGION=ap-northeast-1 aws ecs run-task --cluster h-project-cluster --task-definition arn:aws:ecs:ap-northeast-1:240351857713:task-definition/hello-world:1"
