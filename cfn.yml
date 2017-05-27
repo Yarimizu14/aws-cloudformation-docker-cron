@@ -7,83 +7,12 @@ Parameters:
     Type: String
     Description: Enter TaskDefinitionArn to run.
 Resources:
-  DPP4ZAOO:
+  EcsRunTaskSample:
     Type: 'AWS::DataPipeline::Pipeline'
     Properties:
       Name: ecs-run-task-sample
       Description: "Pipeline to run task on ECS"
       Activate: true
-      PipelineObjects: 
-        - 
-          Id: "CliActivity"
-          Name: "CliActivity"
-          Fields: 
-            - 
-              Key: "parent"
-              RefValue: "Default"
-            - 
-              Key: "type"
-              StringValue: "ShellCommandActivity"
-            - 
-              Key: "runsOn"
-              RefValue: "Ec2Instance"
-            - 
-              Key: "command"
-              StringValue: "(sudo yum -y update aws-cli) && (#{myAWSCLICmd})"
-        - 
-          Id: "Ec2Instance"
-          Name: "Ec2Instance"
-          Fields: 
-            - 
-              Key: "parent"
-              RefValue: "Default"
-            - 
-              Key: "type"
-              StringValue: "Ec2Resource"
-            - 
-              Key: "instanceType"
-              StringValue: "t2.micro"
-            - 
-              Key: "terminateAfter"
-              StringValue: "10 Minutes"
-        - 
-          Id: "DefaultSchedule"
-          Name: "Every 15 minutes"
-          Fields: 
-            - 
-              Key: "parent"
-              RefValue: "Default"
-            - 
-              Key: "type"
-              StringValue: "Schedule"
-            - 
-              Key: "period"
-              StringValue: "15 Minutes"
-            - 
-              Key: "startAt"
-              StringValue: "FIRST_ACTIVATION_DATE_TIME"
-        - 
-          Id: "Default"
-          Name: "Default"
-          Fields: 
-            - 
-              Key: "type"
-              StringValue: "Default"
-            - 
-              Key: "failureAndRerunMode"
-              StringValue: "CASCADE"
-            - 
-              Key: "role"
-              StringValue: "DataPipelineDefaultRole"
-            - 
-              Key: "schedule"
-              RefValue: "DefaultSchedule"
-            - 
-              Key: "resourceRole"
-              StringValue: "DataPipelineDefaultResourceRole"
-            - 
-              Key: "scheduleType"
-              StringValue: "cron"
       ParameterObjects:
         - 
           Id: "myAWSCLICmd"
@@ -106,3 +35,74 @@ Resources:
                 - Ref: EcsClusterName
                 - " --task-definition "
                 - Ref: EcsTaskDefinitioinArn
+      PipelineObjects:
+        - 
+          Id: "Default"
+          Name: "Default"
+          Fields: 
+            - 
+              Key: "type"
+              StringValue: "Default"
+            - 
+              Key: "failureAndRerunMode"
+              StringValue: "CASCADE"
+            - 
+              Key: "role"
+              StringValue: "DataPipelineDefaultRole"
+            - 
+              Key: "schedule"
+              RefValue: "DefaultSchedule"
+            - 
+              Key: "resourceRole"
+              StringValue: "DataPipelineDefaultResourceRole"
+            - 
+              Key: "scheduleType"
+              StringValue: "cron"
+        - 
+          Id: "DefaultSchedule"
+          Name: "Every 30 minutes"
+          Fields: 
+            - 
+              Key: "parent"
+              RefValue: "Default"
+            - 
+              Key: "type"
+              StringValue: "Schedule"
+            - 
+              Key: "period"
+              StringValue: "30 Minutes"
+            - 
+              Key: "startAt"
+              StringValue: "FIRST_ACTIVATION_DATE_TIME"
+        - 
+          Id: "Ec2Instance"
+          Name: "Ec2Instance"
+          Fields: 
+            - 
+              Key: "parent"
+              RefValue: "Default"
+            - 
+              Key: "type"
+              StringValue: "Ec2Resource"
+            - 
+              Key: "instanceType"
+              StringValue: "t2.micro"
+            - 
+              Key: "terminateAfter"
+              StringValue: "10 Minutes"
+        - 
+          Id: "CliActivity"
+          Name: "CliActivity"
+          Fields: 
+            - 
+              Key: "parent"
+              RefValue: "Default"
+            - 
+              Key: "type"
+              StringValue: "ShellCommandActivity"
+            - 
+              Key: "runsOn"
+              RefValue: "Ec2Instance"
+            - 
+              Key: "command"
+              StringValue: "(sudo yum -y update aws-cli) && (#{myAWSCLICmd})"
